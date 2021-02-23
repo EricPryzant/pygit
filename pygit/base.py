@@ -1,6 +1,11 @@
 import os
+import itertools
+import operator
+from collections import namedtuple
 
 from . import data
+
+Commit = namedtuple('Commit', ['tree', 'parent', 'message'])
 
 def write_tree(directory='.'):
     entries = []
@@ -62,6 +67,8 @@ def _empty_current_directory():
 
 def commit(message):
     commit = f'tree {write_tree()}\n'
+    if HEAD := data.get_HEAD():
+        commit += f'parent {HEAD}'
     commit += '\n'
     commit += f'{message}\n'
     oid = data.hash_object(commit.encode(), 'commit')
@@ -73,3 +80,18 @@ def is_ignored(path):
     if '.pygit' in tmp: return True
     if '.git' in tmp: return True
     return False
+
+def get_commit(oid):
+    parent = None
+    commit = data.get_object(oid, 'commit').decode()
+    lines = iter(commit.splitlines())
+    for line in itertools.takewhile(operator.truth, lines):
+        key, value = line.split(' ', 1)
+        if key == 'tree':
+            tree = value
+        elif key == 'parent':
+            parent = value
+        else:
+            assert False, f'Unknown field {key}'
+    message = '\n'.join(lines)
+    return Commit(tree=tree, parent=parent, message=message)
