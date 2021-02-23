@@ -43,6 +43,7 @@ def get_tree(oid, base_path=''):
     return result
 
 def read_tree(tree_oid):
+    _empty_current_directory()
     for path, oid in get_tree(tree_oid, base_path='./').items():
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, 'wb') as f:
@@ -58,6 +59,12 @@ def _empty_current_directory():
                 os.rmdir(path)
             except (FileNotFoundError, OSError):
                 pass 
+
+def commit(message):
+    commit = f'tree {write_tree()}\n'
+    commit += '\n'
+    commit += f'{message}\n'
+    return data.hash_object(commit.encode(), 'commit')
 
 def is_ignored(path):
     tmp = path.split('/')
