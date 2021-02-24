@@ -120,3 +120,15 @@ def get_oid(name):
     if len(name) == 40 and is_hex:
         return name
     assert False, f'Unknown name {name}'
+
+def iter_commits_and_parents(oids):
+    oids = set(oids)
+    visited = set()
+    while oids:
+        oid = oids.pop()
+        if not oid or oid in visited:
+            continue
+        visited.add(oid)
+        yield oid
+        commit = get_commit(oid)
+        oids.add(commit.parent)
