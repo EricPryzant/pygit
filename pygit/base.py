@@ -103,4 +103,4 @@ def checkout(oid):
     data.update_ref('HEAD', oid)
 
 def create_tag(name, oid):
-    pass
+    data.update_ref(f'refs/tags/{name}', oid)
