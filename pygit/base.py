@@ -100,3 +100,6 @@ def checkout(oid):
     commit = get_commit(oid)
     read_tree(commit.tree)
     data.set_HEAD(oid)
+
+def create_tag(name, oid):
+    pass
