@@ -34,3 +34,11 @@ def update_ref(ref, oid):
     os.makedirs(os.path.dirname(ref_path), exist_ok=True)
     with open(ref_path, 'w') as f:
         f.write(oid)
+
+def iter_refs():
+    refs = ['HEAD']
+    for root, _, filenames in os.walk(f'{GIT_DIR}/refs/'):
+        root = os.path.relpath(root, GIT_DIR)
+        refs.extend(f'{root}/{name}' for name in filenames)
+    for refname in refs:
+        yield refname, get_ref(refname)
