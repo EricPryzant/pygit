@@ -1,7 +1,7 @@
 import os
 import itertools
 import operator
-from collections import namedtuple
+from collections import namedtuple, deque
 
 from . import data
 
@@ -122,13 +122,17 @@ def get_oid(name):
     assert False, f'Unknown name {name}'
 
 def iter_commits_and_parents(oids):
-    oids = set(oids)
+    oids = deque(oids)
     visited = set()
     while oids:
-        oid = oids.pop()
+        oid = oids.popleft()
         if not oid or oid in visited:
             continue
         visited.add(oid)
         yield oid
         commit = get_commit(oid)
-        oids.add(commit.parent)
+        oids.appendleft(commit.parent)
+
+def create_branch(name, oid):
+    data.update_ref(f'refs/heads/{name}', oid)
+    
